@@ -26,6 +26,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ricardolorenzo.file.io.IOStreamUtils;
+import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.icalendar.VEvent;
@@ -152,12 +154,11 @@ public class PUT extends CalDAVAbstractMethod {
                     String calendarPath = parentPath.concat("/calendar.ics");
                     File _f = new File(this._store.getRootPath() + calendarPath);
                     InputStream is = req.getInputStream();
-                    ByteArrayOutputStream _baos = new ByteArrayOutputStream();
-                    for (int i = is.read(); i != -1; i = is.read()) {
-                        _baos.write(i);
-                    }
-                    byte[] buffer = _baos.toByteArray();
-                    _baos.close();
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    IOStreamUtils.write(is, os);
+                    byte[] buffer = os.toByteArray();
+                    IOStreamUtils.closeQuietly(is);
+                    IOStreamUtils.closeQuietly(os);
 
                     VCalendar _vc = VCalendarCache.getVCalendar(_f);
                     VCalendar _req_vc = new VCalendar(new ByteArrayInputStream(buffer));
@@ -201,6 +202,8 @@ public class PUT extends CalDAVAbstractMethod {
             } catch (IOException e) {
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (VCalendarException e) {
+                resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
+            } catch (FileLockException e) {
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);

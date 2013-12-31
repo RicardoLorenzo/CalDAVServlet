@@ -14,20 +14,20 @@
  */
 package com.ricardolorenzo.network.http.caldav.security.acl;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 
+import com.ricardolorenzo.file.xml.db.XMLAttribute;
+import com.ricardolorenzo.file.xml.db.XMLDB;
+import com.ricardolorenzo.file.xml.db.XMLDBException;
+import com.ricardolorenzo.file.xml.db.XMLObject;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.security.CalDAVPrincipal;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
-import com.ricardolorenzo.xml.db.XMLAttribute;
-import com.ricardolorenzo.xml.db.XMLDB;
-import com.ricardolorenzo.xml.db.XMLObject;
 
 /**
  * 
@@ -42,83 +42,84 @@ public class FileSystemResourceACL implements CalDAVResourceACL {
     private XMLObject resourceXMLObject;
 
     public FileSystemResourceACL(CalDAVStore store, CalDAVTransaction transaction, String path) throws CalDAVException {
-		this.store = store;
-		if(path == null || path.isEmpty()) {
-			throw new CalDAVException("invalid resource path");
-		}
-		
-		this.path = path;
-		File _f = new File(this.store.getRootPath() + this.path);
-		if(_f.exists()) {
-			if(_f.isFile()) {
-				_f = _f.getParentFile();
-			}
-			
-			if(_f == null || !_f.isDirectory()) {
-				throw new CalDAVException("can not determine the filesystem context");
-			}
-			
-			this._xml_file = new File(_f.getAbsolutePath() + File.separator + ".acl.xml");
-			if(!this._xml_file.exists()) {
-				this.privileges = new CalDAVPrivilegeCollection(transaction.getPrincipal());
-				storePrivilegeCollection(transaction);
-			} else {
-				boolean newResource = true;
-				try {
-					XMLDB _db = new XMLDB(this._xml_file);
-					this.privileges = new CalDAVPrivilegeCollection();
-			    	
-					for(XMLObject resource : _db.getObjects()) {
-						if(!resource.hasAttribute("path")) {
-			    			continue;
-			    		} else if(!this.path.equals(resource.getAttribute("path").getValue())) {
-			    			continue;
-			    		}
-						
-						if(resource.hasAttribute("principal")) {
-	        				this.privileges.setOwner(new CalDAVPrincipal(resource.getAttribute("principal").getValue()));
-	        			}
-			    		
-						newResource = false;
-						this.resourceXMLObject = resource;
-		        		for(XMLObject o : resource.getObjects()) {
-		    				CalDAVPrivilege privilege = null;
-							if(o.hasAttribute("principal")) {
-								privilege = new CalDAVPrivilege(new CalDAVPrincipal(o.getAttribute("principal").getValue()));
-							} else {
-								privilege = new CalDAVPrivilege();
-								privilege.setPrincipal(new CalDAVPrincipal("all"));
-							}
-							
-							for(String pName : CalDAVPrivilege.getSupportedPrivileges().keySet()) {
-								if(o.hasAttribute(pName)) {
-									if("grant".equals(o.getAttribute(pName).getValue())) {
-										privilege.setGrantPrivilege(pName);
-									} else {
-										privilege.setDenyPrivilege(pName);
-									}
-								}
-							}
-							
-							this.privileges.setPrivilege(privilege);
-		        		}
-		        	}
-					
-					if(newResource) {
-						this.privileges.setOwner(transaction.getPrincipal());
-						storePrivilegeCollection(transaction);
-					}
-				} catch(Exceptione) {
-					if(_ex instanceof NullPointerException) { throw (NullPointerException)e; }
-		        	throw new CalDAVException(_ex.getMessage());
-				}
-			}
-		} else {
-			_f = _f.getParentFile();
-			this._xml_file = new File(_f.getAbsolutePath() + File.separator + ".acl.xml");
-			this.privileges = new CalDAVPrivilegeCollection(transaction.getPrincipal());
-		}
-	}
+        this.store = store;
+        if (path == null || path.isEmpty()) {
+            throw new CalDAVException("invalid resource path");
+        }
+
+        this.path = path;
+        File _f = new File(this.store.getRootPath() + this.path);
+        if (_f.exists()) {
+            if (_f.isFile()) {
+                _f = _f.getParentFile();
+            }
+
+            if (_f == null || !_f.isDirectory()) {
+                throw new CalDAVException("can not determine the filesystem context");
+            }
+
+            this._xml_file = new File(_f.getAbsolutePath() + File.separator + ".acl.xml");
+            if (!this._xml_file.exists()) {
+                this.privileges = new CalDAVPrivilegeCollection(transaction.getPrincipal());
+                storePrivilegeCollection(transaction);
+            } else {
+                boolean newResource = true;
+                try {
+                    XMLDB _db = new XMLDB(this._xml_file);
+                    this.privileges = new CalDAVPrivilegeCollection();
+
+                    for (XMLObject resource : _db.getObjects()) {
+                        if (!resource.hasAttribute("path")) {
+                            continue;
+                        } else if (!this.path.equals(resource.getAttribute("path").getValue())) {
+                            continue;
+                        }
+
+                        if (resource.hasAttribute("principal")) {
+                            this.privileges
+                                    .setOwner(new CalDAVPrincipal(resource.getAttribute("principal").getValue()));
+                        }
+
+                        newResource = false;
+                        this.resourceXMLObject = resource;
+                        for (XMLObject o : resource.getObjects()) {
+                            CalDAVPrivilege privilege = null;
+                            if (o.hasAttribute("principal")) {
+                                privilege = new CalDAVPrivilege(new CalDAVPrincipal(o.getAttribute("principal")
+                                        .getValue()));
+                            } else {
+                                privilege = new CalDAVPrivilege();
+                                privilege.setPrincipal(new CalDAVPrincipal("all"));
+                            }
+
+                            for (String pName : CalDAVPrivilege.getSupportedPrivileges().keySet()) {
+                                if (o.hasAttribute(pName)) {
+                                    if ("grant".equals(o.getAttribute(pName).getValue())) {
+                                        privilege.setGrantPrivilege(pName);
+                                    } else {
+                                        privilege.setDenyPrivilege(pName);
+                                    }
+                                }
+                            }
+
+                            this.privileges.setPrivilege(privilege);
+                        }
+                    }
+
+                    if (newResource) {
+                        this.privileges.setOwner(transaction.getPrincipal());
+                        storePrivilegeCollection(transaction);
+                    }
+                } catch (XMLDBException e) {
+                    throw new CalDAVException(e.getMessage());
+                }
+            }
+        } else {
+            _f = _f.getParentFile();
+            this._xml_file = new File(_f.getAbsolutePath() + File.separator + ".acl.xml");
+            this.privileges = new CalDAVPrivilegeCollection(transaction.getPrincipal());
+        }
+    }
 
     public CalDAVPrivilegeCollection getPrivilegeCollection() {
         return this.privileges;
@@ -144,64 +145,62 @@ public class FileSystemResourceACL implements CalDAVResourceACL {
     }
 
     private void storePrivilegeCollection(CalDAVTransaction transaction) {
-		try {
-			XMLDB _db = new XMLDB(this._xml_file);
-			ArrayList<XMLObject> objects = new ArrayList<XMLObject>();
-			if(this.resourceXMLObject == null) {
-				this.resourceXMLObject = _db.createXMLObject();
-				XMLAttribute a = new XMLAttribute("path");
-				a.setValue(this.path);
-				this.resourceXMLObject.addAttribute(a);				
-			}
-			
-			if(!this.resourceXMLObject.hasAttribute("principal")) {
-				if(this.privileges.getOwner() == null) {
-					this.privileges.setOwner(transaction.getPrincipal());
-				}
-				
-				XMLAttribute a = new XMLAttribute("principal");
-				a.setValue(this.privileges.getOwner().getName());
-				this.resourceXMLObject.addAttribute(a);
-			}
-			
-			for(CalDAVPrivilege privilege : this.privileges.getAllPrivileges()) {
-				XMLObject o = _db.createXMLObject();
-				XMLAttribute a = new XMLAttribute("principal");
-				a.setValue(privilege.getPrincipalName());
-				o.addAttribute(a);
-				for(String p : privilege.getGrantedPrivileges()) {
-					a = new XMLAttribute(p);
-					a.setValue("grant");
-					o.addAttribute(a);
-				}
-				for(String p : privilege.getDeniedPrivileges()) {
-					a = new XMLAttribute(p);
-					a.setValue("deny");
-					o.addAttribute(a);
-				}
-				objects.add(o);
-			}
-			
-			this.resourceXMLObject.setObjects(objects);
-			_db.updateObject(this.resourceXMLObject);
-			_db.store();
-		} catch(Exceptione) {
-			if(_ex instanceof NullPointerException) { throw (NullPointerException)e; }
-        	throw new CalDAVException(_ex.getMessage());
-		}
-	}
+        try {
+            XMLDB _db = new XMLDB(this._xml_file);
+            List<XMLObject> objects = new ArrayList<XMLObject>();
+            if (this.resourceXMLObject == null) {
+                this.resourceXMLObject = _db.createXMLObject();
+                XMLAttribute a = new XMLAttribute("path");
+                a.setValue(this.path);
+                this.resourceXMLObject.addAttribute(a);
+            }
+
+            if (!this.resourceXMLObject.hasAttribute("principal")) {
+                if (this.privileges.getOwner() == null) {
+                    this.privileges.setOwner(transaction.getPrincipal());
+                }
+
+                XMLAttribute a = new XMLAttribute("principal");
+                a.setValue(this.privileges.getOwner().getName());
+                this.resourceXMLObject.addAttribute(a);
+            }
+
+            for (CalDAVPrivilege privilege : this.privileges.getAllPrivileges()) {
+                XMLObject o = _db.createXMLObject();
+                XMLAttribute a = new XMLAttribute("principal");
+                a.setValue(privilege.getPrincipalName());
+                o.addAttribute(a);
+                for (String p : privilege.getGrantedPrivileges()) {
+                    a = new XMLAttribute(p);
+                    a.setValue("grant");
+                    o.addAttribute(a);
+                }
+                for (String p : privilege.getDeniedPrivileges()) {
+                    a = new XMLAttribute(p);
+                    a.setValue("deny");
+                    o.addAttribute(a);
+                }
+                objects.add(o);
+            }
+
+            this.resourceXMLObject.setObjects(objects);
+            _db.updateObject(this.resourceXMLObject);
+            _db.store();
+        } catch (XMLDBException e) {
+            throw new CalDAVException(e.getMessage());
+        }
+    }
 
     private void removePrivilegeCollection() throws NullPointerException, CalDAVException {
-		try {
-			XMLDB _db = new XMLDB(this._xml_file);
-			if(this.resourceXMLObject != null) {
-				_db.removeObject(this.resourceXMLObject.getId());
-				_db.store();				
-			}
-			
-		} catch(Exceptione) {
-			if(_ex instanceof NullPointerException) { throw (NullPointerException)e; }
-        	throw new CalDAVException(_ex.getMessage());
-		}
-	}
+        try {
+            XMLDB _db = new XMLDB(this._xml_file);
+            if (this.resourceXMLObject != null) {
+                _db.removeObject(this.resourceXMLObject.getId());
+                _db.store();
+            }
+
+        } catch (XMLDBException e) {
+            throw new CalDAVException(e.getMessage());
+        }
+    }
 }

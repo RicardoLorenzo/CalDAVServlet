@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.ricardolorenzo.file.xml.XMLReader;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.icalendar.VTimeZone;
@@ -42,7 +43,6 @@ import com.ricardolorenzo.network.http.caldav.security.acl.CalDAVResourceACL;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
-import com.ricardolorenzo.xml.XMLReader;
 
 /**
  * @author Ricardo Lorenzo

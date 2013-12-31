@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
@@ -127,6 +128,8 @@ public class DELETE extends CalDAVAbstractMethod {
             } catch (IOException e) {
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (VCalendarException e) {
+                resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
+            } catch (FileLockException e) {
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);

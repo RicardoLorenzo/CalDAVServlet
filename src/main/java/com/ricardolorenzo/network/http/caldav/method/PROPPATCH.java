@@ -28,6 +28,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.ricardolorenzo.file.xml.XMLReader;
+import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
@@ -37,8 +39,6 @@ import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
-import com.ricardolorenzo.xml.XMLReader;
-import com.ricardolorenzo.xml.XMLWriter;
 
 /**
  * 

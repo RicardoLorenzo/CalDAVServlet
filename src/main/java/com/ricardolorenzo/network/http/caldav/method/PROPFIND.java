@@ -33,6 +33,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.ricardolorenzo.file.lock.FileLockException;
+import com.ricardolorenzo.file.xml.XMLReader;
+import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.icalendar.VEvent;
@@ -51,8 +54,6 @@ import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
-import com.ricardolorenzo.xml.XMLReader;
-import com.ricardolorenzo.xml.XMLWriter;
 
 /**
  * @author Ricardo Lorenzo
@@ -273,6 +274,8 @@ public class PROPFIND extends CalDAVAbstractMethod {
                     } catch (IOException e) {
                         // nothing
                     } catch (VCalendarException e) {
+                        // nothing
+                    } catch (FileLockException e) {
                         // nothing
                     }
                     break;

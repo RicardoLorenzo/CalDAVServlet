@@ -29,6 +29,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.ricardolorenzo.file.lock.FileLockException;
+import com.ricardolorenzo.file.xml.XMLReader;
+import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.icalendar.DateTime;
 import com.ricardolorenzo.icalendar.Period;
 import com.ricardolorenzo.icalendar.Person;
@@ -47,8 +50,6 @@ import com.ricardolorenzo.network.http.caldav.security.acl.CalDAVResourceACL;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
-import com.ricardolorenzo.xml.XMLReader;
-import com.ricardolorenzo.xml.XMLWriter;
 
 /**
  * @author Ricardo Lorenzo
@@ -145,6 +146,9 @@ public class REPORT extends CalDAVAbstractMethod {
                     } catch (VCalendarException e) {
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
+                    } catch (FileLockException e) {
+                        resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
+                        return;
                     }
 
                     XML.closeElement();
@@ -167,7 +171,7 @@ public class REPORT extends CalDAVAbstractMethod {
     }
 
     private void processPeriodCalendarActions(CalDAVTransaction transaction, String path, Period p, XMLWriter XML,
-            String type) throws VCalendarException, IOException {
+            String type) throws VCalendarException, IOException, FileLockException {
         if ("VFREEBUSY".equals(type)) {
             String[] names = this._store.getChildrenNames(transaction, path);
             if (names != null) {
@@ -183,7 +187,7 @@ public class REPORT extends CalDAVAbstractMethod {
     }
 
     private void processCalendarActions(CalDAVTransaction transaction, String path, Period p, XMLWriter XML, String type)
-            throws VCalendarException, IOException {
+            throws VCalendarException, IOException, FileLockException {
         String href = path + "/calendar.ics";
         File _f = new File(this._store.getRootPath() + href);
         if (_f.exists()) {
@@ -295,6 +299,8 @@ public class REPORT extends CalDAVAbstractMethod {
                 // nothing
             } catch (VCalendarException e) {
                 // nothing
+            } catch (FileLockException e) {
+                // nothing
             }
         }
     }
@@ -338,6 +344,8 @@ public class REPORT extends CalDAVAbstractMethod {
                     }
                 }
             } catch (VCalendarException e) {
+                // nothing
+            } catch (FileLockException e1) {
                 // nothing
             }
         }

@@ -20,8 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.channels.FileLock;
 
+import com.ricardolorenzo.file.lock.FileLock;
+import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 
@@ -41,7 +42,7 @@ public class VCalendarCache {
         return this.vcalendar;
     }
 
-    public static VCalendar getVCalendar(File vcalendar_file) throws VCalendarException, IOException {
+    public static VCalendar getVCalendar(File vcalendar_file) throws VCalendarException, IOException, FileLockException {
         if (vcalendar_file == null || !vcalendar_file.exists()) {
             return new VCalendar();
         }
@@ -63,7 +64,8 @@ public class VCalendarCache {
         return deSerializeVCalendar(cache_file);
     }
 
-    public static void putVCalendar(VCalendar _vcalendar, File vcalendar_file) throws VCalendarException, IOException {
+    public static void putVCalendar(VCalendar _vcalendar, File vcalendar_file) throws VCalendarException, IOException,
+            FileLockException {
         if (vcalendar_file == null) {
             throw new VCalendarException("invalid VCalendar file");
         }
@@ -79,7 +81,7 @@ public class VCalendarCache {
         serializeVCalendar(_vcalendar, cache_file);
     }
 
-    private static void serializeVCalendar(VCalendar _vcalendar, File _file) throws IOException {
+    private static void serializeVCalendar(VCalendar _vcalendar, File _file) throws IOException, FileLockException {
         FileLock _fl = new FileLock(_file);
         ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(_file));
         _fl.lock();
@@ -87,7 +89,7 @@ public class VCalendarCache {
             os.writeObject(_vcalendar);
             os.flush();
         } finally {
-            _fl.unlock();
+            _fl.unlockQuietly();
             os.close();
         }
     }

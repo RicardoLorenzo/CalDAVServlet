@@ -22,6 +22,8 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ricardolorenzo.file.io.IOStreamUtils;
+import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
@@ -48,27 +50,14 @@ public class GET extends HEAD {
                 resp.sendError(CalDAVResponse.SC_METHOD_NOT_ALLOWED);
                 return;
             }
-            OutputStream out = resp.getOutputStream();
-            InputStream in = this._store.getResourceContent(transaction, path);
+            OutputStream os = resp.getOutputStream();
+            InputStream is = this._store.getResourceContent(transaction, path);
             try {
-                int read = -1;
-                byte[] copyBuffer = new byte[BUF_SIZE];
-
-                while ((read = in.read(copyBuffer, 0, copyBuffer.length)) != -1) {
-                    out.write(copyBuffer, 0, read);
-                }
+                IOStreamUtils.write(is, os);
+                os.flush();
             } finally {
-                // flushing causes a IOE if a file is opened on the webserver
-                // client disconnected before server finished sending response
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-                try {
-                    out.flush();
-                    out.close();
-                } catch (IOException e) {
-                }
+                IOStreamUtils.closeQuietly(is);
+                IOStreamUtils.closeQuietly(os);
             }
         } catch (AccessDeniedException e) {
             try {
@@ -96,7 +85,7 @@ public class GET extends HEAD {
                 String uid = path.substring(path.lastIndexOf("/") + 1);
                 uid = uid.substring(0, uid.length() - 4);
 
-                OutputStream _out = resp.getOutputStream();
+                OutputStream os = resp.getOutputStream();
                 try {
                     if (this._store.resourceExists(transaction, calendarPath)) {
                         File _f = new File(this._store.getRootPath() + calendarPath);
@@ -108,9 +97,9 @@ public class GET extends HEAD {
                             } else if (_vc.hasVtodo(uid)) {
                                 _res_vc.addVtodo(_vc.getVtodo(uid));
                             }
-                            _out.write(_res_vc.toString().getBytes());
+                            IOStreamUtils.write(_res_vc.toString(), os);
                         } else {
-                            _out.write(_vc.toString().getBytes());
+                            IOStreamUtils.write(_vc.toString(), os);
                         }
                     } else {
                         resp.sendError(CalDAVResponse.SC_NOT_FOUND);
@@ -121,9 +110,12 @@ public class GET extends HEAD {
                 } catch (VCalendarException e) {
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
                     return;
+                } catch (FileLockException e) {
+                    resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                    return;
                 } finally {
-                    _out.flush();
-                    _out.close();
+                    os.flush();
+                    IOStreamUtils.closeQuietly(os);
                 }
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, req.getRequestURI());
@@ -139,7 +131,7 @@ public class GET extends HEAD {
             if (so.isFolder()) {
                 // TODO some folder response (for browsers, DAV tools
                 // use propfind) in html?
-                OutputStream _out = resp.getOutputStream();
+                OutputStream os = resp.getOutputStream();
                 String[] children = this._store.getChildrenNames(transaction, path);
                 StringBuilder childrenTemp = new StringBuilder();
                 childrenTemp.append("Contents of this Folder:\n");
@@ -147,9 +139,9 @@ public class GET extends HEAD {
                     childrenTemp.append(child);
                     childrenTemp.append("\n");
                 }
-                _out.write(childrenTemp.toString().getBytes());
-                _out.flush();
-                _out.close();
+                IOStreamUtils.write(childrenTemp.toString(), os);
+                os.flush();
+                IOStreamUtils.closeQuietly(os);
             }
         }
     }

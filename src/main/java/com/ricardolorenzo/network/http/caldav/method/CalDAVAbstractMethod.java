@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.icalendar.VAction;
 import com.ricardolorenzo.network.http.caldav.CalDAVMethod;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
@@ -37,7 +38,6 @@ import com.ricardolorenzo.network.http.caldav.locking.LockedObject;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocks;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
-import com.ricardolorenzo.xml.XMLWriter;
 
 public abstract class CalDAVAbstractMethod implements CalDAVMethod {
     protected static final int INFINITY = 3;

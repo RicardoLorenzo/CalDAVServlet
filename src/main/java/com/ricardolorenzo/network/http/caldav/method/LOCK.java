@@ -30,6 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.ricardolorenzo.file.xml.XMLReader;
+import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
@@ -38,8 +40,6 @@ import com.ricardolorenzo.network.http.caldav.locking.ResourceLocks;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
-import com.ricardolorenzo.xml.XMLReader;
-import com.ricardolorenzo.xml.XMLWriter;
 
 public class LOCK extends CalDAVAbstractMethod {
 
