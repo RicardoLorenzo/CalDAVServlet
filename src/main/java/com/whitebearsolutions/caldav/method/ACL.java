@@ -18,6 +18,7 @@ import org.xml.sax.InputSource;
 
 import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.locking.LockException;
 import com.whitebearsolutions.caldav.locking.ResourceLocksMap;
 import com.whitebearsolutions.caldav.security.CalDAVPrincipal;
@@ -65,7 +66,7 @@ public class ACL extends CalDAVAbstractMethod
 			StoredObject so = null;
 			try
 			{
-				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write-acl");
+				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "write-acl");
 				so = this._store.getStoredObject(transaction, path);
 				if (so == null)
 				{

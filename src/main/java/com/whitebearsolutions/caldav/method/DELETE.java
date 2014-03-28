@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVException;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.ObjectAlreadyExistsException;
 import com.whitebearsolutions.caldav.ObjectNotFoundException;
 import com.whitebearsolutions.caldav.locking.LockException;
@@ -100,7 +101,7 @@ public class DELETE extends CalDAVAbstractMethod
 						href = href.concat("/calendar.ics");
 
 						this.resource_acl = this._store.getResourceACL(transaction, href);
-						this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(),
+						this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req),
 								"write");
 
 						File _f = new File(this._store.getRootPath() + href);
@@ -172,7 +173,7 @@ public class DELETE extends CalDAVAbstractMethod
 			HttpServletRequest req, HttpServletResponse resp) throws IOException, CalDAVException
 	{
 		this.resource_acl = this._store.getResourceACL(transaction, path);
-		this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write");
+		this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "write");
 
 		resp.setStatus(CalDAVResponse.SC_NO_CONTENT);
 		StoredObject so = this._store.getStoredObject(transaction, path);

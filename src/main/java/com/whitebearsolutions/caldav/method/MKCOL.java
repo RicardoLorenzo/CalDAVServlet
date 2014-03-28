@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.locking.LockException;
 import com.whitebearsolutions.caldav.locking.LockedObject;
 import com.whitebearsolutions.caldav.locking.ResourceLocks;
@@ -46,7 +47,7 @@ public class MKCOL extends CalDAVAbstractMethod
 		{
 			try
 			{
-				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "read");
 
 				mkcol(transaction, req, resp);
 			}

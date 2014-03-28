@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVException;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.ObjectAlreadyExistsException;
 import com.whitebearsolutions.caldav.ObjectNotFoundException;
 import com.whitebearsolutions.caldav.locking.LockException;
@@ -118,7 +119,7 @@ public class COPY extends CalDAVAbstractMethod
 		 */
 		this.resource_acl = this._store.getResourceACL(transaction, path);
 		CalDAVPrivilegeCollection collection = this.resource_acl.getPrivilegeCollection();
-		collection.checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+		collection.checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "read");
 		CalDAVResourceACL resource = this._store.getResourceACL(transaction, destinationPath);
 		resource.getPrivilegeCollection().checkPrincipalPrivilege(transaction.getPrincipal(), "write");
 
@@ -177,7 +178,7 @@ public class COPY extends CalDAVAbstractMethod
 				{
 					if (destinationSo != null)
 					{
-						resource.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write");
+						resource.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "write");
 						this._delete.deleteResource(transaction, destinationPath, errorList, req, resp);
 						resource.removeCollection(transaction);
 					}

@@ -74,7 +74,7 @@ public class PUT extends CalDAVAbstractMethod
 			try
 			{
 				CalDAVPrivilegeCollection collection = this.resource_acl.getPrivilegeCollection();
-				collection.checkPrincipalPrivilege(req.getUserPrincipal(), "write");
+				collection.checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "write");
 
 				parentSo = this._store.getStoredObject(transaction, parentPath);
 				if (parentPath != null && parentSo != null && parentSo.isResource())

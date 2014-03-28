@@ -235,7 +235,7 @@ public class CalDAVServlet extends HttpServlet
 
 		try
 		{
-			transaction = this._store.begin(provider.getUserPrincipal());
+			transaction = this._store.begin(provider.getUserPrincipal(req));
 			rollback = true;
 			this._store.checkAuthentication(transaction);
 			resp.setStatus(CalDAVResponse.SC_OK);

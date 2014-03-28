@@ -25,6 +25,7 @@ import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVException;
 import com.whitebearsolutions.caldav.CalDAVMimeType;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.locking.LockException;
 import com.whitebearsolutions.caldav.locking.LockedObject;
 import com.whitebearsolutions.caldav.locking.ResourceLocksMap;
@@ -79,7 +80,7 @@ public class PROPFIND extends CalDAVAbstractMethod
 			StoredObject so = null;
 			try
 			{
-				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+				this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "read");
 				so = this._store.getStoredObject(transaction, path);
 				if (so == null)
 				{

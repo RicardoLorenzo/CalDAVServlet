@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.whitebearsolutions.caldav.AccessDeniedException;
 import com.whitebearsolutions.caldav.CalDAVMimeType;
 import com.whitebearsolutions.caldav.CalDAVResponse;
+import com.whitebearsolutions.caldav.CalDAVServlet;
 import com.whitebearsolutions.caldav.ObjectAlreadyExistsException;
 import com.whitebearsolutions.caldav.locking.LockException;
 import com.whitebearsolutions.caldav.locking.ResourceLocksMap;
@@ -88,7 +89,7 @@ public class HEAD extends CalDAVAbstractMethod
 			{
 				try
 				{
-					this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+					this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.provider.getUserPrincipal(req), "read");
 					String eTagMatch = req.getHeader("If-None-Match");
 					if (eTagMatch != null)
 					{
