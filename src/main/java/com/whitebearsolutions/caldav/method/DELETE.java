@@ -222,7 +222,7 @@ public class DELETE extends CalDAVAbstractMethod
 	 * @throws CalDAVExceptions
 	 */
 	private void deleteFolder(CalDAVTransaction transaction, String path, Hashtable<String, Integer> errorList,
-			HttpServletRequest req, HttpServletReloggersponse resp) throws IOException, CalDAVException
+			HttpServletRequest req, HttpServletResponse resp) throws IOException, CalDAVException
 	{
 		List<String> _childrens = Arrays.asList(this._store.getAllChildrenNames(transaction, path));
 		StoredObject so = null;
