@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,6 +51,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
  * 
  */
 public class MKCALENDAR extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
     private CalDAVResourceACL _resource_acl;
@@ -107,27 +110,34 @@ public class MKCALENDAR extends CalDAVAbstractMethod {
                             resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         }
                     } catch (IOException e) {
+                    	logger.error("mkcalendar", e);
                         resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         return;
                     } catch (DOMException e) {
+                    	logger.error("mkcalendar", e);
                         resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         return;
                     } catch (VCalendarException e) {
+                    	logger.error("mkcalendar", e);
                         resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         return;
                     } catch (ParserConfigurationException e) {
+                    	logger.error("mkcalendar", e);
                         resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         return;
                     } catch (SAXException e) {
+                    	logger.error("mkcalendar", e);
                         resp.sendError(CalDAVResponse.SC_BAD_REQUEST);
                         return;
                     }
                 } else {
+                	logger.error("Unable to retrieve content length for " + path);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } catch (AccessDeniedException e) {
                 resp.sendError(CalDAVResponse.SC_FORBIDDEN);
             } catch (CalDAVException e) {
+            	logger.error("mkcalendar", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);

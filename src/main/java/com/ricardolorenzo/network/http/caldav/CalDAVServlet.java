@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
 import com.ricardolorenzo.network.http.caldav.method.ACL;
 import com.ricardolorenzo.network.http.caldav.method.COPY;
@@ -53,6 +56,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
  * 
  */
 public class CalDAVServlet extends HttpServlet {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final long serialVersionUID = 7073432765018098252L;
 
     /**
@@ -74,6 +78,7 @@ public class CalDAVServlet extends HttpServlet {
         try {
             MD5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
+        	logger.error("MD5", e);
             throw new IllegalStateException();
         }
     }
@@ -88,7 +93,8 @@ public class CalDAVServlet extends HttpServlet {
         boolean lazyFolderCreation = false;
         int no_content_length_headers = 0;
         String instead_of_404 = null;
-        if (conf.getInitParameter("store") == null) {
+        String initParameter = conf.getInitParameter("store");
+		if (initParameter == null) {
             throw new ServletException("store parameter not found");
         }
         String default_index_file = conf.getInitParameter("default-index-file");
@@ -105,6 +111,7 @@ public class CalDAVServlet extends HttpServlet {
             try {
                 no_content_length_headers = Integer.parseInt(conf.getInitParameter("no-content-length-headers"));
             } catch (NumberFormatException e) {
+            	logger.warn("Invalid value for no-content-length-headers" + no_content_length_headers, e);
                 // nothing
             }
         }
@@ -117,13 +124,15 @@ public class CalDAVServlet extends HttpServlet {
 
         try {
             @SuppressWarnings("rawtypes")
-            java.lang.reflect.Constructor c = Class.forName(conf.getInitParameter("store")).getConstructor(
+            java.lang.reflect.Constructor c = Class.forName(initParameter).getConstructor(
                     new Class[] { java.io.File.class });
             this.store = (CalDAVStore) c.newInstance(new Object[] { root });
         } catch (ClassNotFoundException e) {
-            throw new ServletException("java class not found [" + conf.getInitParameter("store") + "]");
+        	logger.error("class=" + initParameter, e);
+            throw new ServletException("java class not found [" + initParameter + "]");
         } catch (Exception e) {
-            throw new ServletException("java class cannot be loaded [" + conf.getInitParameter("store") + "]: "
+        	logger.error("class="+ initParameter, e);
+            throw new ServletException("java class cannot be loaded [" + initParameter + "]: "
                     + e.toString());
         }
 
@@ -187,7 +196,8 @@ public class CalDAVServlet extends HttpServlet {
                 method.execute(transaction, req, resp);
                 this.store.commit(transaction);
                 rollback = false;
-            } catch (IOException e) {
+            } catch (IOException e) { 
+            	logger.error("methodName=" + methodName, e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                 this.store.rollback(transaction);
                 throw new ServletException(e);
@@ -195,6 +205,7 @@ public class CalDAVServlet extends HttpServlet {
         } catch (UnauthenticatedException e) {
             resp.sendError(CalDAVResponse.SC_FORBIDDEN);
         } catch (Exception e) {
+        	logger.error("methodName=" + methodName, e);
             throw new ServletException(e);
         } finally {
             if (rollback) {

@@ -25,6 +25,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
 import com.ricardolorenzo.icalendar.VCalendarException;
@@ -42,6 +45,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
 
 public class DELETE extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
     private CalDAVResourceACL resource_acl;
@@ -126,15 +130,19 @@ public class DELETE extends CalDAVAbstractMethod {
             } catch (ObjectAlreadyExistsException e) {
                 resp.sendError(CalDAVResponse.SC_NOT_FOUND, req.getRequestURI());
             } catch (IOException e) {
+            	logger.error("delete", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (VCalendarException e) {
+            	logger.error("delete", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (FileLockException e) {
+            	logger.error("delete", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
             }
         } else {
+        	logger.error("Unable to take lock for path: " + path);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -214,8 +222,10 @@ public class DELETE extends CalDAVAbstractMethod {
             } catch (ObjectNotFoundException e) {
                 errorList.put(path + children, new Integer(CalDAVResponse.SC_NOT_FOUND));
             } catch (IOException e) {
+            	logger.error("delete", e);
                 errorList.put(path + children, new Integer(CalDAVResponse.SC_INTERNAL_SERVER_ERROR));
             } catch (CalDAVException e) {
+            	logger.error("delete", e);
                 errorList.put(path + children, new Integer(CalDAVResponse.SC_INTERNAL_SERVER_ERROR));
             }
         }

@@ -18,7 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class LockedObject {
+	
+	   Logger logger = LoggerFactory.getLogger(LockedObject.class);
+
     private ResourceLocksMap _resource_locks;
     private String _path;
     private String _id;
@@ -106,8 +112,7 @@ public class LockedObject {
                 this._owner.remove(owner);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("LockedObject.removeLockedObjectOwner()");
-            System.out.println(e.toString());
+        	logger.error("removeLockedObjectOwner", e);
         }
     }
 

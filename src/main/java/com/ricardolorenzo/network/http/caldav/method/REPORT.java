@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,6 +58,7 @@ import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
  * 
  */
 public class REPORT extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
     private CalDAVResourceACL resource_acl;
@@ -138,15 +141,19 @@ public class REPORT extends CalDAVAbstractMethod {
                             }
                         }
                     } catch (IOException e) {
+                    	logger.error("report", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
-                    } catch (SAXException e1) {
+                    } catch (SAXException e) {
+                    	logger.error("report", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (VCalendarException e) {
+                    	logger.error("report", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (FileLockException e) {
+                    	logger.error("report", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     }
@@ -157,8 +164,10 @@ public class REPORT extends CalDAVAbstractMethod {
             } catch (AccessDeniedException e) {
                 resp.sendError(CalDAVResponse.SC_FORBIDDEN);
             } catch (IOException e) {
+            	logger.error("report", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (ParserConfigurationException e1) {
+            } catch (ParserConfigurationException e) {
+            	logger.error("report", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
@@ -214,7 +223,7 @@ public class REPORT extends CalDAVAbstractMethod {
                     }
                 } else {
                     if (this.expand) {
-                        for (VEvent ve : vc.getRecurrenceVevents(p)) {
+                        for (VEvent ve : vc.getRecurrentVevents(p)) {
                             if (ve == null) {
                                 continue;
                             }
@@ -239,7 +248,7 @@ public class REPORT extends CalDAVAbstractMethod {
                     }
                 } else {
                     if (this.expand) {
-                        for (VTodo vt : vc.getRecurrenceVtodos(p)) {
+                        for (VTodo vt : vc.getRecurrentVtodos(p)) {
                             if (vt == null) {
                                 continue;
                             }
@@ -296,10 +305,13 @@ public class REPORT extends CalDAVAbstractMethod {
                     }
                 }
             } catch (IOException e) {
+            	logger.error("report", e);
                 // nothing
             } catch (VCalendarException e) {
+            	logger.error("report", e);
                 // nothing
             } catch (FileLockException e) {
+            	logger.error("report", e);
                 // nothing
             }
         }
@@ -344,8 +356,10 @@ public class REPORT extends CalDAVAbstractMethod {
                     }
                 }
             } catch (VCalendarException e) {
+            	logger.error("report", e);
                 // nothing
-            } catch (FileLockException e1) {
+            } catch (FileLockException e) {
+            	logger.error("report", e);
                 // nothing
             }
         }

@@ -21,6 +21,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
@@ -32,6 +35,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public class MKCOL extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocks _resource_locks;
     private CalDAVResourceACL resource_acl;
@@ -61,11 +65,13 @@ public class MKCOL extends CalDAVAbstractMethod {
             } catch (AccessDeniedException e) {
                 sendPrivilegeError(resp, path, e.getMessage());
             } catch (IOException e) {
+            	logger.error("mkcol", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
             }
         } else {
+        	logger.error("Unable to lock " + path);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

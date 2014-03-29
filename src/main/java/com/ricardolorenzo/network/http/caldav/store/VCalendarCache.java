@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.lock.FileLock;
 import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
@@ -32,6 +35,7 @@ import com.ricardolorenzo.icalendar.VCalendarException;
  * 
  */
 public class VCalendarCache {
+	private final static Logger logger = LoggerFactory.getLogger(VCalendarCache.class);
     private VCalendar vcalendar;
 
     public VCalendarCache(File vcalendar_file) throws Exception {
@@ -99,6 +103,7 @@ public class VCalendarCache {
         try {
             return (VCalendar) is.readObject();
         } catch (ClassNotFoundException e) {
+        	logger.error("deserialize", e);
             throw new IOException("cannot read VCalendar object from cache file [" + _file.getAbsolutePath() + "]");
         } finally {
             is.close();

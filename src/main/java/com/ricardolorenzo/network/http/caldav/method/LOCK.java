@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,6 +44,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public class LOCK extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private CalDAVStore _store;
     private ResourceLocks _resource_locks;
@@ -102,6 +105,7 @@ public class LOCK extends CalDAVAbstractMethod {
                     doLock(transaction, req, resp);
                 }
             } catch (LockException e) {
+            	logger.debug("lock", e);
                 resp.sendError(CalDAVResponse.SC_LOCKED);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, this._path, tempLockOwner);
@@ -143,6 +147,7 @@ public class LOCK extends CalDAVAbstractMethod {
             // Thats the locking itself
             executeLock(transaction, req, resp);
         } catch (ServletException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (LockException e) {
             sendLockFailError(transaction, req, resp);
@@ -189,8 +194,10 @@ public class LOCK extends CalDAVAbstractMethod {
         } catch (LockException e) {
             sendLockFailError(transaction, req, resp);
         } catch (CalDAVException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (ServletException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             parentSo = null;
@@ -380,12 +387,15 @@ public class LOCK extends CalDAVAbstractMethod {
                 return false;
             }
         } catch (DOMException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             return false;
         } catch (SAXException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             return false;
         } catch (ParserConfigurationException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             return false;
         }
@@ -416,6 +426,7 @@ public class LOCK extends CalDAVAbstractMethod {
                     try {
                         lockDuration = new Integer(lockDurationStr).intValue();
                     } catch (NumberFormatException e) {
+                    	logger.warn("Invalid value for Timeout", e);
                         lockDuration = MAX_TIMEOUT;
                     }
                 }
@@ -496,8 +507,10 @@ public class LOCK extends CalDAVAbstractMethod {
 
             XML.write(resp.getOutputStream());
         } catch (IOException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (ParserConfigurationException e) {
+        	logger.error("lock", e);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

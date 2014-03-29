@@ -14,9 +14,13 @@
  */
 package com.ricardolorenzo.network.http.caldav.method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public abstract class CalDAVMethods extends CalDAVAbstractMethod {
+	private final static Logger logger = LoggerFactory.getLogger(CalDAVMethods.class);
     private static final String NULL_RESOURCE_METHODS_ALLOWED = "OPTIONS, MKCOL, PUT, PROPFIND, LOCK, UNLOCK";
     private static final String RESOURCE_METHODS_ALLOWED = "OPTIONS, GET, HEAD, POST, DELETE, TRACE"
             + ", PROPPATCH, COPY, MOVE, LOCK, UNLOCK, PROPFIND, ACL, REPORT";
@@ -41,6 +45,7 @@ public abstract class CalDAVMethods extends CalDAVAbstractMethod {
                 return RESOURCE_METHODS_ALLOWED;
             }
         } catch (Exception e) {
+        	logger.error("determineMethosAllows", e);
             // nothing
         }
         return LESS_ALLOWED_METHODS;
