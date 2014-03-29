@@ -28,7 +28,6 @@ import com.whitebearsolutions.caldav.store.CalDAVStore;
 import com.whitebearsolutions.xml.DateTime;
 import com.whitebearsolutions.xml.Period;
 import com.whitebearsolutions.xml.Person;
-import com.whitebearsolutions.xml.URLEncoder;
 import com.whitebearsolutions.xml.VAction;
 import com.whitebearsolutions.xml.VCalendar;
 import com.whitebearsolutions.xml.VCalendarCache;
@@ -45,7 +44,6 @@ import com.whitebearsolutions.xml.XMLWriter;
  */
 public class REPORT extends CalDAVAbstractMethod
 {
-	protected static URLEncoder URL_ENCODER;
 	private CalDAVStore _store;
 	private ResourceLocksMap _resource_locks;
 	private CalDAVResourceACL resource_acl;

@@ -28,7 +28,6 @@ import com.whitebearsolutions.caldav.security.acl.CalDAVResourceACL;
 import com.whitebearsolutions.caldav.session.CalDAVTransaction;
 import com.whitebearsolutions.caldav.store.CalDAVStore;
 import com.whitebearsolutions.caldav.store.StoredObject;
-import com.whitebearsolutions.xml.URLEncoder;
 import com.whitebearsolutions.xml.VCalendar;
 import com.whitebearsolutions.xml.VTimeZone;
 import com.whitebearsolutions.xml.XMLHelper;
@@ -39,7 +38,6 @@ import com.whitebearsolutions.xml.XMLHelper;
  */
 public class MKCALENDAR extends CalDAVAbstractMethod
 {
-	protected static URLEncoder URL_ENCODER;
 	private CalDAVStore _store;
 	private ResourceLocksMap _resource_locks;
 	private CalDAVResourceACL _resource_acl;
