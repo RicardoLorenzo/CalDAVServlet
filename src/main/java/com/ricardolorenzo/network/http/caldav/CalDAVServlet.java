@@ -54,7 +54,33 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
  * 
  * @author Ricardo Lorenzo
  * 
+ * The core servlet that handles CalDAV requests.
+ * 
+ * A method is registered for each CalDAV request type.
+ * 
+ * To configure the servlet you need to provide the following servlet init-param's:
+ * 
+ * store - the fully qualified class to the calendar store.
+ * 	Standard stores are:  
+ * 		<code>com.whitebearsolutions.caldav.store.FileSystemStore</code>
+ * 
+ * lazy-folder-creation-on-put  - 
+ * 	This should be 1 for lazy creation of 0 for immediate creation.
+ * Defaults to 0
+ * 
+ * default-index-file - the default html file to return if the request is for a folder rather than an calendar object.
+ * 
+ * no-content-length-headers
+ * 	This should be 1 if content length headers are to be suppressed.
+ *  Defaults to 0 
+ * 
+ * instead-of-404
+ *  Allows you to define a html page that is displayed rather than a 404. 
+ *  Possibly this can be a URL to redirect to on the local system but I'm not certain.
+ * 	
+ * 
  */
+
 public class CalDAVServlet extends HttpServlet {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final long serialVersionUID = 7073432765018098252L;
