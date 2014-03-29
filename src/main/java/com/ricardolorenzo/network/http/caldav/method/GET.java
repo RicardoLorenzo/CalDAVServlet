@@ -22,6 +22,9 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.io.IOStreamUtils;
 import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
@@ -36,6 +39,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
 
 public class GET extends HEAD {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     public GET(CalDAVStore store, String draft_index_file, String insteadOf404, ResourceLocksMap resourceLocks,
             CalDAVMimeType mimeType, int contentLengthHeader) {
         super(store, draft_index_file, insteadOf404, resourceLocks, mimeType, contentLengthHeader);
@@ -63,9 +67,11 @@ public class GET extends HEAD {
             try {
                 resp.sendError(CalDAVResponse.SC_FORBIDDEN);
             } catch (IOException e1) {
+            	logger.error("get", e1);
                 // nothing
             }
         } catch (IOException e) {
+        	logger.error("get", e);
             // nothing
         }
     }
@@ -105,12 +111,15 @@ public class GET extends HEAD {
                         resp.sendError(CalDAVResponse.SC_NOT_FOUND);
                     }
                 } catch (IOException e) {
+                	logger.error("get", e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
                     return;
                 } catch (VCalendarException e) {
+                	logger.error("get for " + calendarPath, e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
                     return;
                 } catch (FileLockException e) {
+                	logger.error("get for " + calendarPath, e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
                     return;
                 } finally {
