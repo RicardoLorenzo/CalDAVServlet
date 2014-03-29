@@ -34,7 +34,6 @@ import com.ricardolorenzo.icalendar.VCalendarException;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
-import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.ObjectAlreadyExistsException;
 import com.ricardolorenzo.network.http.caldav.ObjectNotFoundException;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
@@ -105,7 +104,7 @@ public class DELETE extends CalDAVAbstractMethod {
                         href = href.concat("/calendar.ics");
 
                         this.resource_acl = this._store.getResourceACL(transaction, href);
-                        this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req),
+                        this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(),
                                 "write");
 
                         File _f = new File(this._store.getRootPath() + href);
@@ -167,7 +166,7 @@ public class DELETE extends CalDAVAbstractMethod {
     public void deleteResource(CalDAVTransaction transaction, String path, Map<String, Integer> errorList,
             HttpServletRequest req, HttpServletResponse resp) throws IOException, CalDAVException {
         this.resource_acl = this._store.getResourceACL(transaction, path);
-        this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "write");
+        this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write");
 
         resp.setStatus(CalDAVResponse.SC_NO_CONTENT);
         StoredObject so = this._store.getStoredObject(transaction, path);

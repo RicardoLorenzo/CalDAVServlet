@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVMimeType;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
-import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.ObjectAlreadyExistsException;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
@@ -89,7 +88,7 @@ public class HEAD extends CalDAVAbstractMethod {
 
             if (this._resource_locks.lock(transaction, path, tempLockOwner, false, 0, TEMP_TIMEOUT, TEMPORARY)) {
                 try {
-                    this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
+                    this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
                     String eTagMatch = req.getHeader("If-None-Match");
                     if (eTagMatch != null) {
                         if (eTagMatch.equals(getETag(so))) {
