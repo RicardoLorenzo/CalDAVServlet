@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.xml.db.XMLAttribute;
 import com.ricardolorenzo.file.xml.db.XMLDB;
 import com.ricardolorenzo.file.xml.db.XMLDBException;
@@ -35,6 +38,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
  * 
  */
 public class FileSystemResourceACL implements CalDAVResourceACL {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVPrivilegeCollection privileges;
     private CalDAVStore store;
     private String path;

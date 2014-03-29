@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.xml.XMLWriter;
 import com.ricardolorenzo.icalendar.VAction;
 import com.ricardolorenzo.network.http.caldav.CalDAVMethod;
@@ -40,6 +43,7 @@ import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public abstract class CalDAVAbstractMethod implements CalDAVMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     protected static final int INFINITY = 3;
     protected static final SimpleDateFormat CREATION_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     protected static final SimpleDateFormat LAST_MODIFIED_DATE_FORMAT = new SimpleDateFormat(
@@ -350,6 +354,7 @@ public abstract class CalDAVAbstractMethod implements CalDAVMethod {
             writer.write(XML.toString());
             writer.close();
         } catch (ParserConfigurationException e) {
+        	logger.error("sendReport", e);
             // nothing
         }
     }
@@ -382,6 +387,7 @@ public abstract class CalDAVAbstractMethod implements CalDAVMethod {
             writer.write(XML.toString());
             writer.close();
         } catch (ParserConfigurationException e) {
+        	logger.error("parse", e);
             // nothing
         }
     }

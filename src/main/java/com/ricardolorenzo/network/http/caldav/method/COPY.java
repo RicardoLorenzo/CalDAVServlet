@@ -22,6 +22,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
@@ -36,6 +39,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public class COPY extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
     private CalDAVResourceACL resource_acl;
@@ -147,6 +151,7 @@ public class COPY extends CalDAVAbstractMethod {
                 } catch (ObjectAlreadyExistsException e) {
                     errorList.put(destinationPath + children[i], new Integer(CalDAVResponse.SC_CONFLICT));
                 } catch (CalDAVException e) {
+                	logger.error("", e);
                     errorList.put(destinationPath + children[i], new Integer(CalDAVResponse.SC_INTERNAL_SERVER_ERROR));
                 }
             }
@@ -287,11 +292,13 @@ public class COPY extends CalDAVAbstractMethod {
             } catch (ObjectNotFoundException _es) {
                 resp.sendError(CalDAVResponse.SC_NOT_FOUND, req.getRequestURI());
             } catch (CalDAVException e) {
+            	logger.error("copy", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
             }
         } else {
+        	logger.error("Unable to take lock for path: " + path);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

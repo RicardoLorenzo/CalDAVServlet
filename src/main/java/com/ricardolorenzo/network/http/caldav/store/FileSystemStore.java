@@ -28,6 +28,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.io.IOStreamUtils;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.security.acl.CalDAVResourceACL;
@@ -41,6 +44,7 @@ import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
  * 
  */
 public class FileSystemStore implements CalDAVStore {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private static int BUF_SIZE = 65536;
     private File root = null;
 
@@ -86,6 +90,7 @@ public class FileSystemStore implements CalDAVStore {
                 throw new CalDAVException("cannot create file: " + uri);
             }
         } catch (final IOException e) {
+        	logger.error("uri=" + uri, e);
             throw new CalDAVException(e);
         }
     }
@@ -146,6 +151,7 @@ public class FileSystemStore implements CalDAVStore {
         try {
             in = new BufferedInputStream(new FileInputStream(file));
         } catch (final IOException e) {
+        	logger.error("uri=" + uri, e);
             throw new CalDAVException(e);
         }
         return in;
@@ -221,6 +227,7 @@ public class FileSystemStore implements CalDAVStore {
                 IOStreamUtils.closeQuietly(os);
             }
         } catch (final IOException e) {
+        	logger.error("uri=" + uri, e);
             throw new CalDAVException(e);
         }
 
@@ -228,6 +235,7 @@ public class FileSystemStore implements CalDAVStore {
         try {
             length = file.length();
         } catch (final SecurityException e) {
+        	logger.error("uri=" + uri, e);
             // nothing
         }
 

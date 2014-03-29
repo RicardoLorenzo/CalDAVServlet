@@ -26,6 +26,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.file.io.IOStreamUtils;
 import com.ricardolorenzo.file.lock.FileLockException;
 import com.ricardolorenzo.icalendar.VCalendar;
@@ -45,6 +48,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 import com.ricardolorenzo.network.http.caldav.store.VCalendarCache;
 
 public class PUT extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private CalDAVResourceACL resource_acl;
     private ResourceLocks _resource_locks;
@@ -200,15 +204,19 @@ public class PUT extends CalDAVAbstractMethod {
             } catch (AccessDeniedException e) {
                 sendPrivilegeError(resp, path, e.getMessage());
             } catch (IOException e) {
+            	logger.error("", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (VCalendarException e) {
+            	logger.error("", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } catch (FileLockException e) {
+            	logger.error("", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
             }
         } else {
+        	logger.error("Unable to retrieve lock for " + path);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
