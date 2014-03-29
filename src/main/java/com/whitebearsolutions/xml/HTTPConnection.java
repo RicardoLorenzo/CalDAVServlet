@@ -1,84 +1,112 @@
 package com.whitebearsolutions.xml;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+
 public class HTTPConnection
 {
 
-	public static final String ACL = null;
-	public static final String DELETE = null;
-	public static final String MKCOL = null;
-	public static final String MKCALENDAR = null;
-	public static final String PROPFIND = null;
-	public static final String PUT = null;
-	public static final String REPORT = null;
+	public static final String ACL = "ACL";
+	public static final String DELETE = "DELETE";
+	public static final String MKCOL = "MKCOL";
+	public static final String MKCALENDAR = "MKCALENDAR";
+	public static final String PROPFIND = "PROPFIND";
+	public static final String PUT = "PUT";
+	public static final String REPORT = "REPORT";
+	private String hostname;
+	private String userAgent;
+	private HashMap<String, String> headers = new HashMap<String, String>();
+	private int port;
+	private String path;
+	private String contentType;
+	private String content;
+	private int responseCode;
+	private String responseMessage;
 
 	public HTTPConnection(String hostName)
 	{
-		// TODO Auto-generated constructor stub
+		this.hostname = hostName;
 	}
 
-	public void setUserAgent(String string)
+	public void setUserAgent(String userAgent)
 	{
-		// TODO Auto-generated method stub
+		this.userAgent = userAgent;
 
 	}
 
-	public void connect(String acl2)
+	public void connect(String method) throws IOException
 	{
-		// TODO Auto-generated method stub
+		URL url = new URL("http", hostname, port, URLEncoder.encode(path, "UTF-8"));
+		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+		urlConnection.setRequestMethod(method);
+		urlConnection.setDoInput(true);
+		urlConnection.setRequestProperty("Content-Type", contentType);
+		urlConnection.setRequestProperty("User-Agent", userAgent);
 
+		for (String header : this.headers.keySet())
+		{
+			urlConnection.setRequestProperty(header, this.headers.get(header));
+		}
+
+		OutputStreamWriter out = new OutputStreamWriter(urlConnection.getOutputStream());
+		out.write(this.content);
+		out.close();
+		urlConnection.getInputStream();
+		this.responseCode = urlConnection.getResponseCode();
+		this.responseMessage = urlConnection.getResponseMessage();
 	}
 
 	public byte[] getContent()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return this.content.getBytes();
 	}
 
 	public int getResponseCode()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return this.responseCode;
 	}
 
-	public int getResponseMessage()
+	public String getResponseMessage()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return this.responseMessage;
 	}
 
 	public String getServer()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return hostname;
 	}
 
 	public void setPort(int port)
 	{
-		// TODO Auto-generated method stub
+		this.port = port;
 
 	}
 
-	public void setContent(String string)
+	public void setContent(String content)
 	{
-		// TODO Auto-generated method stub
+		this.content = content;
 
 	}
 
-	public void setContentType(String string)
+	public void setContentType(String contentType)
 	{
-		// TODO Auto-generated method stub
+		this.contentType = contentType;
 
 	}
 
-	public void setHeader(String string, String string2)
+	public void setHeader(String key, String value)
 	{
-		// TODO Auto-generated method stub
+		this.headers.put(key, value);
 
 	}
 
 	public void setPath(String path)
 	{
-		// TODO Auto-generated method stub
+		this.path = path;
 
 	}
 
