@@ -37,6 +37,7 @@ import com.ricardolorenzo.icalendar.VEvent;
 import com.ricardolorenzo.icalendar.VTodo;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.LockedObject;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocks;
@@ -88,7 +89,7 @@ public class PUT extends CalDAVAbstractMethod {
             StoredObject parentSo, so = null;
             try {
                 CalDAVPrivilegeCollection collection = this.resource_acl.getPrivilegeCollection();
-                collection.checkPrincipalPrivilege(req.getUserPrincipal(), "write");
+                collection.checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "write");
 
                 parentSo = this._store.getStoredObject(transaction, parentPath);
                 if (parentPath != null && parentSo != null && parentSo.isResource()) {

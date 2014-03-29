@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.ObjectAlreadyExistsException;
 import com.ricardolorenzo.network.http.caldav.ObjectNotFoundException;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
@@ -196,7 +197,7 @@ public class COPY extends CalDAVAbstractMethod {
          */
         this.resource_acl = this._store.getResourceACL(transaction, path);
         CalDAVPrivilegeCollection collection = this.resource_acl.getPrivilegeCollection();
-        collection.checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+        collection.checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
         CalDAVResourceACL resource = this._store.getResourceACL(transaction, destinationPath);
         resource.getPrivilegeCollection().checkPrincipalPrivilege(transaction.getPrincipal(), "write");
 
@@ -246,7 +247,7 @@ public class COPY extends CalDAVAbstractMethod {
 
                 if (overwrite) {
                     if (destinationSo != null) {
-                        resource.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write");
+                        resource.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "write");
                         this._delete.deleteResource(transaction, destinationPath, errorList, req, resp);
                         resource.removeCollection(transaction);
                     } else {

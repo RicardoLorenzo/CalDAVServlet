@@ -17,16 +17,12 @@ package com.ricardolorenzo.network.http.caldav.security;
 import java.io.Serializable;
 import java.security.Principal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * 
  * @author Ricardo Lorenzo
  * 
  */
 public class CalDAVPrincipal implements Principal, Serializable {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final long serialVersionUID = 4653910678665298928L;
     private String name;
 

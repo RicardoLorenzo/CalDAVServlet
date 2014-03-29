@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 import com.ricardolorenzo.file.xml.XMLReader;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
 import com.ricardolorenzo.network.http.caldav.security.CalDAVPrincipal;
@@ -69,7 +70,7 @@ public class ACL extends CalDAVAbstractMethod {
         if (this._resource_locks.lock(transaction, path, tempLockOwner, false, this._depth, TEMP_TIMEOUT, TEMPORARY)) {
             StoredObject so = null;
             try {
-                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write-acl");
+                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "write-acl");
                 so = this._store.getStoredObject(transaction, path);
                 if (so == null) {
                     resp.setContentType("text/xml; charset=UTF-8");

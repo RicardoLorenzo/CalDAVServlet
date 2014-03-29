@@ -14,8 +14,8 @@
  */
 package com.ricardolorenzo.network.http.caldav;
 
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -78,12 +78,22 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
  *  Allows you to define a html page that is displayed rather than a 404. 
  *  Possibly this can be a URL to redirect to on the local system but I'm not certain.
  * 	
+ * security-provider
+ *  - allows you to provide an external security provider to let 
+ *  CalDAVServlet have access to the currently logged in user.
+ *  If no security-provider is specified then the default
+ *  servlet provider will be used (e.g. req.getUserPrinciple();
+ *  
+ *  Pass the fully qualified class to your security provider implementation.
  * 
  */
 
 public class CalDAVServlet extends HttpServlet {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final long serialVersionUID = 7073432765018098252L;
+    
+	private static final String SECURITY_PROVIDER = "security-provider";
+
 
     /**
      * MD5 message digest provider.
@@ -93,6 +103,8 @@ public class CalDAVServlet extends HttpServlet {
     private ResourceLocksMap resourceLocks;
     private CalDAVStore store;
     private Map<String, CalDAVMethod> httpMethods;
+    
+    public static SecurityProvider securityProvider;
 
     /**
      * CalDAVServlet constructor
@@ -115,10 +127,12 @@ public class CalDAVServlet extends HttpServlet {
      * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
      */
     public void init(ServletConfig conf) throws ServletException {
-        File root = new File("/home");
         boolean lazyFolderCreation = false;
         int no_content_length_headers = 0;
         String instead_of_404 = null;
+        
+		initProvider(conf);
+		
         String initParameter = conf.getInitParameter("store");
 		if (initParameter == null) {
             throw new ServletException("store parameter not found");
@@ -141,18 +155,16 @@ public class CalDAVServlet extends HttpServlet {
                 // nothing
             }
         }
-        if (conf.getInitParameter("root") != null) {
-            root = new File(conf.getInitParameter("root"));
-        }
         if (conf.getInitParameter("instead-of-404") != null) {
             instead_of_404 = conf.getInitParameter("instead-of-404");
         }
 
         try {
-            @SuppressWarnings("rawtypes")
-            java.lang.reflect.Constructor c = Class.forName(initParameter).getConstructor(
-                    new Class[] { java.io.File.class });
-            this.store = (CalDAVStore) c.newInstance(new Object[] { root });
+    		@SuppressWarnings("unchecked")
+            java.lang.reflect.Constructor<CalDAVStore> _c = (Constructor<CalDAVStore>) Class.forName(conf.getInitParameter("store")).getConstructor(new Class[]
+    		{ ServletConfig.class });
+    		this.store = (CalDAVStore) _c.newInstance(new Object[] { conf });
+
         } catch (ClassNotFoundException e) {
         	logger.error("class=" + initParameter, e);
             throw new ServletException("java class not found [" + initParameter + "]");
@@ -209,7 +221,7 @@ public class CalDAVServlet extends HttpServlet {
         boolean rollback = false;
 
         try {
-            transaction = this.store.begin(req.getUserPrincipal());
+            transaction = this.store.begin(CalDAVServlet.securityProvider.getUserPrincipal(req));
             rollback = true;
             this.store.checkAuthentication(transaction);
             resp.setStatus(CalDAVResponse.SC_OK);
@@ -239,4 +251,47 @@ public class CalDAVServlet extends HttpServlet {
             }
         }
     }
+    
+    /**
+	 * Instantiates a Calendar Provider from the servlet parameter security-provider
+	 * @throws ServletException 
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	@SuppressWarnings("unchecked")
+	private void initProvider(ServletConfig conf) throws ServletException 
+	{
+		String className = conf.getInitParameter(SECURITY_PROVIDER);
+	
+		Class<SecurityProvider> providerClass;
+		try
+		{
+			providerClass = (Class<SecurityProvider>) Class.forName(className);
+			CalDAVServlet.securityProvider = providerClass.newInstance();
+		}
+		catch (ClassNotFoundException e)
+		{
+			logger.error("className=" + className, e);
+			throw new ServletException(e);
+		}
+		catch (InstantiationException e)
+		{
+			logger.error("className=" + className, e);
+			throw new ServletException(e);
+		}
+		catch (IllegalAccessException e)
+		{
+			logger.error("className=" + className, e);
+			throw new ServletException(e);
+		}
+		
+		if (securityProvider == null)
+		{
+			logger.warn("Using the default security provider");
+			securityProvider = new DefaultSecurityProviderImpl();
+		}
+	
+	}
+
 }

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.LockedObject;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocks;
@@ -59,7 +60,7 @@ public class MKCOL extends CalDAVAbstractMethod {
         String tempLockOwner = "MKCOL" + System.currentTimeMillis() + req.toString();
         if (this._resource_locks.lock(transaction, path, tempLockOwner, false, 0, TEMP_TIMEOUT, TEMPORARY)) {
             try {
-                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
 
                 mkcol(transaction, req, resp);
             } catch (AccessDeniedException e) {

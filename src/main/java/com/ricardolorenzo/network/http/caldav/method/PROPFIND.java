@@ -46,6 +46,7 @@ import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVMimeType;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.LockedObject;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
@@ -89,7 +90,7 @@ public class PROPFIND extends CalDAVAbstractMethod {
         if (this._resource_locks.lock(transaction, path, tempLockOwner, false, this._depth, TEMP_TIMEOUT, TEMPORARY)) {
             StoredObject so = null;
             try {
-                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
                 so = this._store.getStoredObject(transaction, path);
                 if (so == null) {
                     resp.setContentType("text/xml; charset=UTF-8");
