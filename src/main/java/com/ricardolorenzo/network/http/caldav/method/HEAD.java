@@ -19,9 +19,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVMimeType;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.ObjectAlreadyExistsException;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
@@ -31,6 +35,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public class HEAD extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     protected String _draft_index_file;
     protected CalDAVStore _store;
     protected String _insteadOf404;
@@ -84,7 +89,7 @@ public class HEAD extends CalDAVAbstractMethod {
 
             if (this._resource_locks.lock(transaction, path, tempLockOwner, false, 0, TEMP_TIMEOUT, TEMPORARY)) {
                 try {
-                    this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "read");
+                    this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
                     String eTagMatch = req.getHeader("If-None-Match");
                     if (eTagMatch != null) {
                         if (eTagMatch.equals(getETag(so))) {
@@ -139,11 +144,13 @@ public class HEAD extends CalDAVAbstractMethod {
                 } catch (ObjectAlreadyExistsException e) {
                     resp.sendError(CalDAVResponse.SC_NOT_FOUND, req.getRequestURI());
                 } catch (IOException e) {
+                	logger.error("head", e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                 } finally {
                     this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
                 }
             } else {
+            	logger.error("Unable to take a lock for " + path);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } else {

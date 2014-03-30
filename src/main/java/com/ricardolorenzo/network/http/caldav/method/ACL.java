@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,6 +33,7 @@ import org.xml.sax.SAXException;
 import com.ricardolorenzo.file.xml.XMLReader;
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
+import com.ricardolorenzo.network.http.caldav.CalDAVServlet;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
 import com.ricardolorenzo.network.http.caldav.security.CalDAVPrincipal;
@@ -46,6 +49,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
  * 
  */
 public class ACL extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
     private CalDAVResourceACL resource_acl;
@@ -66,7 +70,7 @@ public class ACL extends CalDAVAbstractMethod {
         if (this._resource_locks.lock(transaction, path, tempLockOwner, false, this._depth, TEMP_TIMEOUT, TEMPORARY)) {
             StoredObject so = null;
             try {
-                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(req.getUserPrincipal(), "write-acl");
+                this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "write-acl");
                 so = this._store.getStoredObject(transaction, path);
                 if (so == null) {
                     resp.setContentType("text/xml; charset=UTF-8");
@@ -145,12 +149,16 @@ public class ACL extends CalDAVAbstractMethod {
                         }
                         this.resource_acl.setPrivilegeCollection(transaction, collection);
                     } catch (IOException e) {
+                    	
+                    	logger.error("acl", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (ParserConfigurationException e) {
+                    	logger.error("acl", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (SAXException e) {
+                    	logger.error("acl", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     }

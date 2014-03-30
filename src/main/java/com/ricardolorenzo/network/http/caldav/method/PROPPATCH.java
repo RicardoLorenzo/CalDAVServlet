@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -46,6 +48,7 @@ import com.ricardolorenzo.network.http.caldav.store.StoredObject;
  * 
  */
 public class PROPPATCH extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocksMap _resource_locks;
 
@@ -129,16 +132,20 @@ public class PROPPATCH extends CalDAVAbstractMethod {
                         toremoveNode = XMLReader.firstSubElement(
                                 XMLReader.firstSubElement(document.getDocumentElement(), "remove"), "prop");
                     } catch (IOException e) {
+                    	logger.error("proppatch", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (ParserConfigurationException e) {
+                    	logger.error("proppatch", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     } catch (SAXException e) {
+                    	logger.error("proppatch", e);
                         resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
                     }
                 } else {
+                	logger.error("Unable to retrieve content length for " + path);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                     return;
                 }
@@ -202,18 +209,22 @@ public class PROPPATCH extends CalDAVAbstractMethod {
 
                     XML.write(resp.getOutputStream());
                 } catch (IOException e) {
+                	logger.error("proppatch", e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                 } catch (ParserConfigurationException e) {
+                	logger.error("proppatch", e);
                     resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } catch (AccessDeniedException e) {
                 resp.sendError(CalDAVResponse.SC_FORBIDDEN);
             } catch (CalDAVException e) {
+            	logger.error("proppatch", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);
             }
         } else {
+        	logger.error("Unable to retreive lock for " + path);
             resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

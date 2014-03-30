@@ -19,6 +19,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
 import com.ricardolorenzo.network.http.caldav.locking.LockException;
 import com.ricardolorenzo.network.http.caldav.locking.LockedObject;
@@ -28,6 +31,7 @@ import com.ricardolorenzo.network.http.caldav.store.CalDAVStore;
 import com.ricardolorenzo.network.http.caldav.store.StoredObject;
 
 public class UNLOCK extends CalDAVMethods {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private CalDAVStore _store;
     private ResourceLocks _resource_locks;
 
@@ -78,6 +82,7 @@ public class UNLOCK extends CalDAVMethods {
                 }
             }
         } catch (LockException e) {
+        	logger.error("unlock", e);
             // nothing
         } finally {
             this._resource_locks.unlockTemporaryLockedObjects(transaction, path, tempLockOwner);

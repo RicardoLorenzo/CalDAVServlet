@@ -21,6 +21,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ricardolorenzo.network.http.caldav.AccessDeniedException;
 import com.ricardolorenzo.network.http.caldav.CalDAVException;
 import com.ricardolorenzo.network.http.caldav.CalDAVResponse;
@@ -30,6 +33,7 @@ import com.ricardolorenzo.network.http.caldav.locking.ResourceLocksMap;
 import com.ricardolorenzo.network.http.caldav.session.CalDAVTransaction;
 
 public class MOVE extends CalDAVAbstractMethod {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
     private ResourceLocksMap _resource_locks;
     private DELETE _delete;
     private COPY _copy;
@@ -79,6 +83,7 @@ public class MOVE extends CalDAVAbstractMethod {
             } catch (ObjectAlreadyExistsException e) {
                 resp.sendError(CalDAVResponse.SC_NOT_FOUND, req.getRequestURI());
             } catch (CalDAVException e) {
+            	logger.error("move", e);
                 resp.sendError(CalDAVResponse.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 this._resource_locks.unlockTemporaryLockedObjects(transaction, sourcePath, tempLockOwner);
