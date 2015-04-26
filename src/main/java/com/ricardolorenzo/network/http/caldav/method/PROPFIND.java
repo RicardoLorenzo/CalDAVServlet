@@ -138,7 +138,6 @@ public class PROPFIND extends CalDAVAbstractMethod {
                 }
 
                 logger.debug("propertyFindType:" + propertyFindType);
-
                 if (propertyFindType == FIND_BY_PROPERTY) {
                     propertyFindType = 0;
                     properties = XMLReader.getProperties(propNode);

@@ -14,8 +14,13 @@
  */
 package com.ricardolorenzo.network.http.caldav;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+=======
+import java.io.File;
+import java.io.IOException;
+>>>>>>> d9e0de53ab1251dacd07376b8acab2884afe313f
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;

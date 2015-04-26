@@ -69,7 +69,6 @@ public class LOCK extends CalDAVAbstractMethod {
             throws IOException, LockException {
 
     	logger.debug("entry: " + req.getRequestURI());
-
         this._path = getRelativePath(req);
         this._parentPath = getParentPath(getCleanPath(this._path));
 

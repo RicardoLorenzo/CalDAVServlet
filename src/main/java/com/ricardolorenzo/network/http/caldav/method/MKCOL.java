@@ -49,7 +49,6 @@ public class MKCOL extends CalDAVAbstractMethod {
     public void execute(CalDAVTransaction transaction, HttpServletRequest req, HttpServletResponse resp)
             throws IOException, LockException {
     	logger.debug("entry: " + req.getRequestURI());
-
         String path = getRelativePath(req);
         String parentPath = getParentPath(getCleanPath(path));
         this.resource_acl = this._store.getResourceACL(transaction, path);
@@ -63,7 +62,6 @@ public class MKCOL extends CalDAVAbstractMethod {
         if (this._resource_locks.lock(transaction, path, tempLockOwner, false, 0, TEMP_TIMEOUT, TEMPORARY)) {
             try {
                 this.resource_acl.getPrivilegeCollection().checkPrincipalPrivilege(CalDAVServlet.securityProvider.getUserPrincipal(req), "read");
-
                 mkcol(transaction, req, resp);
             } catch (AccessDeniedException e) {
                 sendPrivilegeError(resp, path, e.getMessage());

@@ -28,7 +28,6 @@ public class NOT_IMPLEMENTED implements CalDAVMethod {
 
     public void execute(CalDAVTransaction transaction, HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-
         resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
     }
 }
