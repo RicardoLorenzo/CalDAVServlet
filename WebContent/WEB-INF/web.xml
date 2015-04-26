@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_ID" version="3.0"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
 	<display-name>CalDAV</display-name>
-
 	<servlet>
 		<servlet-name>CalDAVServlet</servlet-name>
-		<servlet-class>com.whitebearsolutions.caldav.CalDAVServlet</servlet-class>
+		<servlet-class>com.ricardolorenzo.network.http.caldav.CalDAVServlet</servlet-class>
 		<init-param>
-			<param-name>CalendarProvider</param-name>
-			<param-value>au.com.scoutmaster.CalendarProviderImpl</param-value>
+			<param-name>security-provider</param-name>
+			<param-value>au.org.scoutmaster.caldav.SecurityProviderImpl</param-value>
 		</init-param>
 		<init-param>
 			<param-name>store</param-name>
-			<param-value>com.whitebearsolutions.caldav.store.FileSystemStore</param-value>
+			<param-value>com.ricardolorenzo.network.http.caldav.store.FileSystemStore</param-value>
 		</init-param>
-
+		<init-param>
+			<param-name>root</param-name>
+			<param-value>/home/bsutton/caldavstore</param-value>
+		</init-param>
+		<init-param>
+			<!-- allow http PUT commands -->
+			<param-name>readonly</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>allowSpecialPaths</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
-
-
 	<servlet-mapping>
 		<servlet-name>CalDAVServlet</servlet-name>
-		<url-pattern>/caldav</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-
-
 </web-app>

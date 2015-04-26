@@ -1,4 +1,4 @@
-package au.com.scoutmaster;
+package au.org.scoutmaster.caldav;
 
 import java.security.Principal;
 
